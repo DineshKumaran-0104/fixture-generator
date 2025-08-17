@@ -1,23 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import WizardModal from "./WizardModal";
+import "./App.css";
 
 function App() {
+  const [showWizard, setShowWizard] = useState(false);
+  const [finalData, setFinalData] = useState(null);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Fixture Generator</h1>
+
+      {/* Button to upload files */}
+      <button onClick={() => setShowWizard(true)}>Add Teams / Players</button>
+
+      {/* Show popup if true */}
+      {showWizard && (
+        <WizardModal
+          onClose={() => setShowWizard(false)}
+          onComplete={(data) => {
+            setFinalData(data);
+            setShowWizard(false);
+          }}
+        />
+      )}
+
+      {/* Show result preview */}
+      {finalData && (
+        <div className="preview">
+          <h2>Final Data</h2>
+          <p>Mode: {finalData.mode}</p>
+          <p>Total Entries: {finalData.entries.length}</p>
+          <ul>
+            {finalData.entries.map((item, idx) => (
+              <li key={idx}>{JSON.stringify(item)}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
