@@ -16,7 +16,6 @@ function CsvUpload({ onClose, onComplete }) {
         header: true,       // Treat first row as headers
         skipEmptyLines: true,
         complete: (results) => {
-          //console.log("Parsed CSV:", results.data);
           setData(results.data); // Save parsed rows in state
         },
       });
