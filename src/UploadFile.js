@@ -6,7 +6,7 @@ function CsvUpload({ onClose, onComplete }) {
   const [fileName, setFileName] = useState("");
   const [uniqueColumn, setUniqueColumn] = useState("");
 
-  // Handle file upload
+  // Handle file upload1
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
 
