@@ -3,38 +3,37 @@ import WizardModal from "./WizardModal";
 import "./App.css";
 
 function App() {
-  const [showWizard, setShowWizard] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const [finalData, setFinalData] = useState(null);
 
   return (
     <div className="App">
       <h1>Fixture Generator</h1>
 
-      {/* Button to upload files */}
-      <button onClick={() => setShowWizard(true)}>Add Teams / Players</button>
+      {/* Button to open wizard modal */}
+      <button onClick={() => setShowPopup(true)}>Add Teams/Players</button>
 
-      {/* Show popup if true */}
-      {showWizard && (
+      {/* Wizard modal popup */}
+      {showPopup && (
         <WizardModal
-          onClose={() => setShowWizard(false)}
+          onClose={() => setShowPopup(false)}
           onComplete={(data) => {
             setFinalData(data);
-            setShowWizard(false);
+            setShowPopup(false);
           }}
         />
       )}
 
-      {/* Show result preview */}
+      {/* Preview icon on main page */}
       {finalData && (
-        <div className="preview">
-          <h2>Final Data</h2>
-          <p>Mode: {finalData.mode}</p>
-          <p>Total Entries: {finalData.entries.length}</p>
-          <ul>
-            {finalData.entries.map((item, idx) => (
-              <li key={idx}>{JSON.stringify(item)}</li>
-            ))}
-          </ul>
+        <div className="preview-container">
+          <h2>Preview</h2>
+          <button
+            className="preview-btn"
+            onClick={() => setShowPopup(true)}
+          >
+            👁 Preview Data
+          </button>
         </div>
       )}
     </div>

@@ -1,101 +1,85 @@
-/* Modal overlay */
+/* Popup styles */
 .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  /* Modal content */
-  .popup-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 500px;
-    max-width: 90%;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-    animation: fadeIn 0.3s ease;
-  }
-  
-  /* Wizard header */
-  .wizard-header {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  
-  /* Wizard step buttons */
-  .wizard-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-  
-  .wizard-buttons button {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  
-  .wizard-buttons button:hover {
-    opacity: 0.9;
-  }
-  
-  .wizard-buttons .back {
-    background: #ccc;
-    color: #333;
-  }
-  
-  .wizard-buttons .next {
-    background: #007bff;
-    color: #fff;
-  }
-  
-  .wizard-buttons .done {
-    background: #28a745;
-    color: #fff;
-  }
-  
-  /* Table preview */
-  .csv-preview {
-    max-height: 200px;
-    overflow-y: auto;
-    margin-top: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-  }
-  
-  .csv-preview table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .csv-preview th,
-  .csv-preview td {
-    border: 1px solid #ddd;
-    padding: 6px;
-    text-align: left;
-    font-size: 14px;
-  }
-  
-  /* Animations */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Wizard steps */
+.wizard-step {
+  margin-top: 20px;
+}
+
+.wizard-step button {
+  margin: 10px 5px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.wizard-step button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Preview box */
+.preview-box {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.preview-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.preview-box th, .preview-box td {
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+}
+
+.preview-container {
+  margin-top: 20px;
+}
+
+.preview-btn {
+  padding: 6px 12px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
