@@ -6,7 +6,7 @@ function CsvUpload({ onClose, onComplete }) {
   const [fileName, setFileName] = useState("");
   const [uniqueColumn, setUniqueColumn] = useState("");
 
-  // Handle file upload
+  // Handle file upload1
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
 
@@ -16,7 +16,6 @@ function CsvUpload({ onClose, onComplete }) {
         header: true,       // Treat first row as headers
         skipEmptyLines: true,
         complete: (results) => {
-          //console.log("Parsed CSV:", results.data);
           setData(results.data); // Save parsed rows in state
         },
       });
