@@ -5,17 +5,24 @@ import "./App.css";
 function App() {
   const [showPopup, setShowPopup] = useState(false);
   const [finalData, setFinalData] = useState(null);
+  const [previewMode, setPreviewMode] = useState(false); // NEW → to know if user clicked Preview
 
   return (
     <div className="App">
       <h1>Fixture Generator</h1>
 
       {/* Button to open wizard modal */}
-      <button onClick={() => setShowPopup(true)}>Add Teams/Players</button>
+      <button onClick={() => {
+        setPreviewMode(false);  // normal add flow
+        setShowPopup(true)}}>
+          Add Teams/Players
+      </button>
 
       {/* Wizard modal popup */}
       {showPopup && (
         <WizardModal
+          initialData={previewMode ? finalData : null} // pass finalData only when preview
+          previewMode={previewMode}
           onClose={() => setShowPopup(false)}
           onComplete={(data) => {
             setFinalData(data);
@@ -30,7 +37,10 @@ function App() {
           <h2>Preview</h2>
           <button
             className="preview-btn"
-            onClick={() => setShowPopup(true)}
+            onClick={() => {
+              setPreviewMode(true);
+              setShowPopup(true)
+            }}
           >
             👁 Preview Data
           </button>

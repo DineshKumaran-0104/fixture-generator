@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import Papa from "papaparse";
 import "./WizardModal.css";
 //import "./App.css";
 
-function WizardModal({ onClose, onComplete }) {
-  const [step, setStep] = useState(1);
-  const [method, setMethod] = useState(null);
+function WizardModal({ onClose, onComplete, initialData, previewMode }) {
+  const [step, setStep] = useState(previewMode ? 3 : 1);
+  const [method, setMethod] = useState(initialData && initialData.method? initialData.method :null);
   const [csvData, setCsvData] = useState(null);
   const [headers, setHeaders] = useState([]);
   const [uniqueColumn, setUniqueColumn] = useState("");
@@ -13,6 +13,7 @@ function WizardModal({ onClose, onComplete }) {
   const [newEntry, setNewEntry] = useState("");
   const [error, setError] = useState("");
   const [duplicateRows, setDuplicateRows] = useState([]);
+  const [finalData, setFinalData] = useState(initialData || null);
 
   // Handle CSV Upload
   const handleCsvUpload = (e) => {
@@ -34,10 +35,29 @@ function WizardModal({ onClose, onComplete }) {
     });
   };
 
+  useEffect(() => {
+    if (previewMode && initialData) {
+      setCsvData(initialData);
+      setStep(3);
+    }
+  }, [previewMode, initialData]);
 
-  // if(csvData){
-  //   console.log(csvData);
-  // }
+  useEffect(() => {
+    if (method === "csv" && csvData) {
+      setFinalData({
+        method,
+        fileName: csvData?.fileName,
+        uniqueColumn,
+        data: csvData?.data,
+      });
+    } else if (method === "manual" && manualEntries.length > 0) {
+      setFinalData({
+        method,
+        data: manualEntries,
+      });
+    }
+  }, [method, csvData, manualEntries, uniqueColumn]);
+
   // Validate unique column
   const validateUniqueColumn = (dataOverride) => {
     const data = dataOverride && dataOverride.data ? dataOverride.data : csvData.data;
@@ -79,10 +99,10 @@ function WizardModal({ onClose, onComplete }) {
     }
   };
 
-  const finalData =
-    method === "csv"
-      ? { method, fileName: csvData?.fileName, uniqueColumn, data: csvData?.data }
-      : { method, data: manualEntries };
+  // const finalData =
+  //   method === "csv"
+  //     ? { method, fileName: csvData?.fileName, uniqueColumn, data: csvData?.data }
+  //     : { method, data: manualEntries };
 
   const removeRow = (rowIndex) => {
     const updatedData = csvData.data.filter((_, idx) => idx !== rowIndex);
@@ -93,7 +113,7 @@ function WizardModal({ onClose, onComplete }) {
     // Re-run validation on the updated data
     validateUniqueColumn(newCsvData);
   };
-      
+  
 
   return (
     <div className="popup-overlay">
