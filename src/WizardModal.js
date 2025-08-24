@@ -23,9 +23,12 @@ function WizardModal({ onClose, onComplete }) {
       header: true,
       skipEmptyLines: true,
       complete: function (results) {
-        //setCsvData(results.data);
-        setHeaders(Object.keys(results.data[0]));
-        setCsvData({ fileName: file.name, data: results.data });
+        // Clean rows: remove rows where all values are empty/whitespace
+        const cleanedData = results.data.filter(row => {
+          return Object.values(row).some(val => val && val.trim() !== "");
+        });
+        setHeaders(Object.keys(cleanedData[0] || {}));
+        setCsvData({ fileName: file.name, data:cleanedData });
         setStep(2); // go to unique column validation step
       },
     });
@@ -36,13 +39,14 @@ function WizardModal({ onClose, onComplete }) {
   //   console.log(csvData);
   // }
   // Validate unique column
-  const validateUniqueColumn = () => {
+  const validateUniqueColumn = (dataOverride) => {
+    const data = dataOverride && dataOverride.data ? dataOverride.data : csvData.data;
     if (!uniqueColumn) return;
   
     const seen = new Set();
     const duplicates = [];
   
-    csvData.data.forEach((row, index) => {
+    data.forEach((row, index) => {
       const value = row[uniqueColumn];
       if (seen.has(value)) {
         duplicates.push({ index, value, row });
@@ -81,15 +85,13 @@ function WizardModal({ onClose, onComplete }) {
       : { method, data: manualEntries };
 
   const removeRow = (rowIndex) => {
-    console.log(csvData.data);
-    console.log(rowIndex);
     const updatedData = csvData.data.filter((_, idx) => idx !== rowIndex);
-
-    console.log(updatedData)
-    setCsvData({ ...csvData, data: updatedData });
   
-    // Re-run validation after removal
-    setTimeout(() => validateUniqueColumn(), 0);
+    const newCsvData = { ...csvData, data: updatedData };
+    setCsvData(newCsvData);
+  
+    // Re-run validation on the updated data
+    validateUniqueColumn(newCsvData);
   };
       
 
