@@ -206,6 +206,7 @@ function WizardModal({ onClose, onComplete }) {
         {step === 3 && (
           <div className="wizard-step">
             <h2>Step 3: Preview Data</h2>
+            <p>First 5 rows for preview</p>
             <div className="preview-box">
               {finalData.data && finalData.data.length > 0 ? (
                 <table>
@@ -217,7 +218,7 @@ function WizardModal({ onClose, onComplete }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {finalData.data.map((row, idx) => (
+                    {finalData.data.slice(0, 5).map((row, idx) => (
                       <tr key={idx}>
                         {method === "csv"
                           ? Object.values(row).map((val, i) => <td key={i}>{val}</td>)
