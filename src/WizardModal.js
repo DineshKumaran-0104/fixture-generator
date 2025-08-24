@@ -240,6 +240,7 @@ function WizardModal({ onClose, onComplete }) {
           <div className="wizard-step">
             <h2>Step 4: Confirm</h2>
             <p>Are you sure you want to save?</p>
+            <button onClick={() => setStep(3)}>Back</button>
             <button onClick={() => onComplete(finalData)}>✅ Confirm</button>
           </div>
         )}
