@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/fixture-generator/static/css/main.c37d7a24.css",
+    "main.js": "/fixture-generator/static/js/main.17daf1f5.js",
+    "static/js/453.9f76f416.chunk.js": "/fixture-generator/static/js/453.9f76f416.chunk.js",
+    "index.html": "/fixture-generator/index.html",
+    "main.c37d7a24.css.map": "/fixture-generator/static/css/main.c37d7a24.css.map",
+    "main.17daf1f5.js.map": "/fixture-generator/static/js/main.17daf1f5.js.map",
+    "453.9f76f416.chunk.js.map": "/fixture-generator/static/js/453.9f76f416.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c37d7a24.css",
+    "static/js/main.17daf1f5.js"
+  ]
+}
