@@ -8,7 +8,8 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
   const [method, setMethod] = useState(initialData && initialData.method? initialData.method :null);
   const [csvData, setCsvData] = useState(null);
   const [headers, setHeaders] = useState([]);
-  const [uniqueColumn, setUniqueColumn] = useState("");
+  const [uniqueColumn, setUniqueColumn] = useState(initialData && initialData.uniqueColumn ? initialData.uniqueColumn : "");
+  const [displayColumn, setDisplayColumn] = useState(initialData && initialData.displayColumn ? initialData.displayColumn : "");
   const [manualEntries, setManualEntries] = useState([]);
   const [newEntry, setNewEntry] = useState("");
   const [error, setError] = useState("");
@@ -49,6 +50,7 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
         fileName: csvData?.fileName,
         uniqueColumn,
         data: csvData?.data,
+        displayColumn
       });
     } else if (method === "manual" && manualEntries.length > 0) {
       setFinalData({
@@ -56,7 +58,7 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
         data: manualEntries,
       });
     }
-  }, [method, csvData, manualEntries, uniqueColumn]);
+  }, [method, csvData, manualEntries, uniqueColumn, displayColumn]);
 
   // Validate unique column
   const validateUniqueColumn = (dataOverride) => {
@@ -144,18 +146,34 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
             {csvData && (
               <div>
                 <p>File: {csvData.fileName}</p>
-                <label>Choose Unique Column:</label>
-                <select
-                  value={uniqueColumn}
-                  onChange={(e) => setUniqueColumn(e.target.value)}
-                >
-                  <option value="">--Select--</option>
-                  {headers.map((col) => (
-                    <option key={col} value={col}>
-                      {col}
-                    </option>
-                  ))}
-                </select>
+                <div>
+                  <label>Choose Unique Column:</label>
+                  <select
+                    value={uniqueColumn}
+                    onChange={(e) => setUniqueColumn(e.target.value)}
+                  >
+                    <option value="">--Select--</option>
+                    {headers.map((col) => (
+                      <option key={col} value={col}>
+                        {col}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label>Choose Display Column:</label>
+                  <select
+                    value={displayColumn}
+                    onChange={(e) => setDisplayColumn(e.target.value)}
+                  >
+                    <option value="">--Select--</option>
+                    {headers.map((col) => (
+                      <option key={col} value={col}>
+                        {col}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             )}
             {error && <p style={{ color: "red" }}>{error}</p>}
@@ -233,7 +251,7 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
                   <thead>
                     <tr>
                       {method === "csv"
-                        ? Object.keys(finalData.data[0]).map((col) => <th key={col}>{col}</th>)
+                        ? <th> {finalData.displayColumn} </th>
                         : <th>Name</th>}
                     </tr>
                   </thead>
@@ -241,7 +259,7 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
                     {finalData.data.slice(0, 5).map((row, idx) => (
                       <tr key={idx}>
                         {method === "csv"
-                          ? Object.values(row).map((val, i) => <td key={i}>{val}</td>)
+                          ? <th> {row[finalData.displayColumn] + " ("+ row[finalData.uniqueColumn]+")"} </th>
                           : <td>{row.name}</td>}
                       </tr>
                     ))}
