@@ -95,9 +95,15 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
 
   // Handle manual entry add
   const addManualEntry = () => {
-    if (newEntry.trim() !== "") {
-      setManualEntries([...manualEntries, { name: newEntry }]);
-      setNewEntry("");
+    const trimmed = newEntry.trim();
+    if (trimmed !== ""){
+      if(manualEntries.some((entry) => entry.name.toLowerCase() === trimmed.toLowerCase())){
+        setError(`Found duplicates entry "${trimmed}"`);
+      } else {
+        setManualEntries([...manualEntries, { name: trimmed }]);
+        setNewEntry("");
+        setError("");
+      }
     }
   };
 
@@ -229,6 +235,7 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
               placeholder="Enter player/team name"
             />
             <button aria-label="Add Individual Entry" onClick={addManualEntry}>Add</button>
+            {error && <p style={{ color: "red" }}>{error}</p>}
 
             <ul>
               {manualEntries.map((entry, idx) => (
