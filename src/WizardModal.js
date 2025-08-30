@@ -118,10 +118,10 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
   
 
   return (
-    <div className="popup-overlay">
+    <div role="dialog" aria-modal="true" aria-label="Wizard Modal" className="popup-overlay">
       <div className="popup-content">
         {/* Close button */}
-        <button className="close-btn" onClick={onClose}>
+        <button aria-label="Close" className="close-btn" onClick={onClose}>
           ✖
         </button>
 
@@ -132,7 +132,7 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
             <button onClick={() => { setMethod("csv"); setStep(2); }}>
               Upload CSV
             </button>
-            <button onClick={() => { setMethod("manual"); setStep(2); }}>
+            <button aria-label="Add Manual Entry" onClick={() => { setMethod("manual"); setStep(2); }}>
               Add Manually
             </button>
           </div>
@@ -223,11 +223,12 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
             <h2>Step 2: Add Manual Entries</h2>
             <input
               type="text"
+              data-testid="player-input"
               value={newEntry}
               onChange={(e) => setNewEntry(e.target.value)}
               placeholder="Enter player/team name"
             />
-            <button onClick={addManualEntry}>Add</button>
+            <button aria-label="Add Individual Entry" onClick={addManualEntry}>Add</button>
 
             <ul>
               {manualEntries.map((entry, idx) => (
