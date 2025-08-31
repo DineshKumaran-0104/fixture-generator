@@ -1,6 +1,7 @@
 import React, { useState, useEffect  } from "react";
 import Papa from "papaparse";
 import "./WizardModal.css";
+import InlineEditableList from "./InlineEditableList";
 //import "./App.css";
 
 function WizardModal({ onClose, onComplete, initialData, previewMode }) {
@@ -106,11 +107,6 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
       }
     }
   };
-
-  // const finalData =
-  //   method === "csv"
-  //     ? { method, fileName: csvData?.fileName, uniqueColumn, data: csvData?.data }
-  //     : { method, data: manualEntries };
 
   const removeRow = (rowIndex) => {
     const updatedData = csvData.data.filter((_, idx) => idx !== rowIndex);
@@ -237,11 +233,7 @@ function WizardModal({ onClose, onComplete, initialData, previewMode }) {
             <button aria-label="Add Individual Entry" onClick={addManualEntry}>Add</button>
             {error && <p style={{ color: "red" }}>{error}</p>}
 
-            <ul>
-              {manualEntries.map((entry, idx) => (
-                <li key={idx}>{entry.name}</li>
-              ))}
-            </ul>
+            <InlineEditableList entries={manualEntries} onChange={setManualEntries} />
             <button disabled={manualEntries.length === 0} onClick={() => setStep(3)}>
               Next
             </button>
