@@ -7,16 +7,6 @@ function App() {
   const [showPopup, setShowPopup] = useState(false);
   const [finalData, setFinalData] = useState(null);
   const [previewMode, setPreviewMode] = useState(false); // NEW → to know if user clicked Preview
-  const [fixtureType, setFixtureType] = useState(""); // league | knockout
-  const [knockoutTeams, setKnockoutTeams] = useState([]); // teams selected
-  const [knockoutAdvance, setKnockoutAdvance] = useState(false);
-
-  const [leagueAdvance, setLeagueAdvance] = useState(false);
-  const [leagueOption, setLeagueOption] = useState(""); // round robin | sequential | snake
-  const [leagueMode, setLeagueMode] = useState(""); // time | group
-  const [leagueTime, setLeagueTime] = useState({ total: "", perMatch: "" });
-
-  const [step, setStep] = useState(1);
 
   return (
     <div className="App">
