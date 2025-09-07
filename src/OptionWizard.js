@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function OptionWizard() {
+function OptionWizard({onComplete}) {
     const [step, setStep] = useState(1);
     const [fixtureType, setFixtureType] = useState(""); // league | knockout
     const [knockoutTeams, setKnockoutTeams] = useState([]); // teams selected
@@ -204,7 +204,7 @@ function OptionWizard() {
 
             <div style={{ marginTop: "20px" }}>
               <button onClick={() => setStep(2)}>⬅ Back</button>
-              {/* <button
+              <button
                 onClick={() =>
                   onComplete({
                     fixtureType,
@@ -218,7 +218,7 @@ function OptionWizard() {
                 }
               >
                 ✅ Confirm
-              </button> */}
+              </button>
             </div>
           </div>
           )}

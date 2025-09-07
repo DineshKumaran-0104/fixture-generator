@@ -2,11 +2,15 @@ import React, { useState } from "react";
 import WizardModal from "./WizardModal";
 import "./App.css";
 import OptionWizard from "./OptionWizard";
+import LeagueTable from "./LeagueTable";
+import KnockoutBracket from "./KnockoutBracket";
 
 function App() {
   const [showPopup, setShowPopup] = useState(false);
   const [finalData, setFinalData] = useState(null);
   const [previewMode, setPreviewMode] = useState(false); // NEW → to know if user clicked Preview
+  const [fixtureOption, setFixtureOption] = useState(null);
+  const [dummyArray, setDummyArray] = useState([]);
 
   return (
     <div className="App">
@@ -48,7 +52,21 @@ function App() {
           </button>
         </div>
 
-        <OptionWizard />
+        <OptionWizard onComplete={(data)=>{
+          setFixtureOption(data);
+        }}/>
+        </div>
+      )}
+
+      {fixtureOption && fixtureOption.fixtureType === "league" && finalData && (
+        <div>
+          <LeagueTable teams={finalData.data}/>
+          </div>
+      )}
+
+      {fixtureOption && fixtureOption.fixtureType === "knockout" && finalData && (
+        <div>
+          <KnockoutBracket teams={finalData.data} />
         </div>
       )}
     </div>
