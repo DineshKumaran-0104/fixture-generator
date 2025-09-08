@@ -1,48 +1,52 @@
-/**
- * Generate Knockout Fixtures
- * @param {string[]} teams - list of team names
- * @returns {Array<{round: string, matches: {home: string, away: string | null}[]}>}
- */
- export function generateKnockoutFixtures(teams) {
-    if (!teams || teams.length < 2) return [];
-  
-    const fixtures = [];
-    let roundTeams = [...teams];
-  
-    // Shuffle for fairness (optional)
-    // roundTeams = roundTeams.sort(() => Math.random() - 0.5);
-  
-    // Keep making rounds until 1 winner
-    let roundNumber = 1;
-    while (roundTeams.length > 1) {
-      const nextRoundTeams = [];
-      const matches = [];
-  
-      // If odd number, give a bye to the last team
-      if (roundTeams.length % 2 !== 0) {
-        matches.push({ home: roundTeams[roundTeams.length - 1], away: null }); // bye
-        nextRoundTeams.push(roundTeams[roundTeams.length - 1]);
-        roundTeams = roundTeams.slice(0, -1);
-      }
-  
-      // Pair up teams
-      for (let i = 0; i < roundTeams.length; i += 2) {
-        const home = roundTeams[i];
-        const away = roundTeams[i + 1];
-        matches.push({ home, away });
-        // Winner placeholder → advance to next round
-        nextRoundTeams.push(`Winner of ${home} vs ${away}`);
-      }
-  
-      fixtures.push({
-        round: `Round ${roundNumber}`,
-        matches,
+// utils/knockoutGenerator.js
+export function generateKnockoutFixtures(teams) {
+  let numTeams = teams.length;
+  let rounds = [];
+  let roundNumber = 1;
+
+  // First round pairings (with byes if odd)
+  let matches = [];
+  for (let i = 0; i < numTeams; i += 2) {
+    if (i + 1 < numTeams) {
+      matches.push({
+        home: teams[i],
+        away: teams[i + 1],
       });
-  
-      roundTeams = nextRoundTeams;
-      roundNumber++;
+    } else {
+      matches.push({
+        home: teams[i],
+        away: null, // bye
+      });
     }
-  
-    return fixtures;
   }
-  
+  rounds.push({ round: `Round ${roundNumber}`, matches });
+
+  // Generate subsequent rounds
+  let currentRoundTeams = matches.map((m) => ({
+    name: m.away ? `${m.home.name}/${m.away.name}` : m.home.name,
+  }));
+
+  while (currentRoundTeams.length > 1) {
+    roundNumber++;
+    matches = [];
+    for (let i = 0; i < currentRoundTeams.length; i += 2) {
+      if (i + 1 < currentRoundTeams.length) {
+        matches.push({
+          home: currentRoundTeams[i],
+          away: currentRoundTeams[i + 1],
+        });
+      } else {
+        matches.push({
+          home: currentRoundTeams[i],
+          away: null,
+        });
+      }
+    }
+    rounds.push({ round: `Round ${roundNumber}`, matches });
+    currentRoundTeams = matches.map((m) => ({
+      name: m.away ? `${m.home.name}/${m.away.name}` : m.home.name,
+    }));
+  }
+
+  return rounds;
+}

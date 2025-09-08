@@ -1,27 +1,27 @@
 import React from "react";
+import { Bracket, RoundProps } from "react-brackets";
 import { generateKnockoutFixtures } from "./utils/knockoutGenerator";
 
 export default function KnockoutBracket({ teams }) {
   const fixtures = generateKnockoutFixtures(teams);
-  console.log(fixtures);
+
+  // Convert your fixtures into react-brackets format
+  const rounds = fixtures.map((round, rIdx) => ({
+    title: round.round,
+    seeds: round.matches.map((m, idx) => ({
+      id: `${rIdx}-${idx}`,
+      date: null, // optional
+      teams: [
+        { name: m.home ? m.home.name : "TBD" },
+        { name: m.away ? m.away.name : "BYE" },
+      ],
+    })),
+  }));
 
   return (
     <div>
       <h2>Knockout Bracket</h2>
-      {fixtures.map((round, rIdx) => (
-        <div key={rIdx} style={{ marginBottom: "20px" }}>
-          <h3>{round.round}</h3>
-          <ul>
-            {round.matches.map((m, idx) => (
-              <li key={idx}>
-                {m.away
-                  ? `${m.home.name} vs ${m.away.name}`
-                  : `${m.home.name} gets a BYE`}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      <Bracket rounds={rounds} />
     </div>
   );
 }
