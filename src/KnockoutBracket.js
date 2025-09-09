@@ -1,4 +1,3 @@
-import React from "react";
 import { Bracket, RoundProps } from "react-brackets";
 import { generateKnockoutFixtures } from "./utils/knockoutGenerator";
 
