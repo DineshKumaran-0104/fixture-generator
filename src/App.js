@@ -10,7 +10,7 @@ function App() {
   const [finalData, setFinalData] = useState(null);
   const [previewMode, setPreviewMode] = useState(false); // NEW → to know if user clicked Preview
   const [fixtureOption, setFixtureOption] = useState(null);
-  const [dummyArray, setDummyArray] = useState([]);
+  const [flow, setFlow] = useState("bracket");
 
   return (
     <div className="App">
@@ -60,13 +60,19 @@ function App() {
 
       {fixtureOption && fixtureOption.fixtureType === "league" && finalData && (
         <div>
-          <LeagueTable teams={finalData.data}/>
+          <LeagueTable participantstData={finalData}/>
           </div>
       )}
 
-      {fixtureOption && fixtureOption.fixtureType === "knockout" && finalData && (
+      {fixtureOption && fixtureOption.fixtureType === "knockout" && flow==="brakcet" && finalData && (
         <div>
-          <KnockoutBracket teams={finalData.data} />
+          <KnockoutBracket participantstDetails={finalData} />
+        </div>
+      )}
+
+      {fixtureOption && fixtureOption.fixtureType === "knockout" && flow!=="brakcet" && finalData && (
+        <div>
+          <div>New flow loading</div>
         </div>
       )}
     </div>

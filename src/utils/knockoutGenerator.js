@@ -1,5 +1,9 @@
 // utils/knockoutGenerator.js
-export function generateKnockoutFixtures(teams) {
+export function generateKnockoutFixtures(participantstDetails) {
+  let teams = participantstDetails.data;
+  let method = participantstDetails.method;
+  let displayColumn = method === 'csv' ? participantstDetails.displayColumn : 'name';
+  let uniquColumn = method === 'csv' ? participantstDetails.uniqueColumn : undefined;
   let numTeams = teams.length;
   let rounds = [];
   let roundNumber = 1;
@@ -21,10 +25,13 @@ export function generateKnockoutFixtures(teams) {
   }
   rounds.push({ round: `Round ${roundNumber}`, matches });
 
+  //console.log(displayColumn);
+  console.log(matches);
   // Generate subsequent rounds
   let currentRoundTeams = matches.map((m) => ({
-    name: m.away ? `${m.home.name}/${m.away.name}` : m.home.name,
+    name: m.away ? `${m.home[displayColumn] + "" + uniquColumn ? + "("+ m.home[uniquColumn]+")" : "" } vs ${m.away[displayColumn] + "" + uniquColumn ? + "("+ m.home[uniquColumn]+")" : ""}` : m.home[displayColumn]+"" + uniquColumn ? + "("+ m.home[uniquColumn]+")" : "",
   }));
+  console.log(currentRoundTeams);
 
   while (currentRoundTeams.length > 1) {
     roundNumber++;
@@ -44,7 +51,7 @@ export function generateKnockoutFixtures(teams) {
     }
     rounds.push({ round: `Round ${roundNumber}`, matches });
     currentRoundTeams = matches.map((m) => ({
-      name: m.away ? `${m.home.name}/${m.away.name}` : m.home.name,
+      name: m.away ? `${m.home[displayColumn]} vs ${m.away[displayColumn]}` : m.home[displayColumn],
     }));
   }
 

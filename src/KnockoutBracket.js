@@ -1,8 +1,10 @@
 import { Bracket, RoundProps } from "react-brackets";
 import { generateKnockoutFixtures } from "./utils/knockoutGenerator";
 
-export default function KnockoutBracket({ teams }) {
-  const fixtures = generateKnockoutFixtures(teams);
+export default function KnockoutBracket({ participantstDetails }) {
+  console.log(participantstDetails)
+  const fixtures = generateKnockoutFixtures(participantstDetails);
+  console.log(fixtures);
 
   // Convert your fixtures into react-brackets format
   const rounds = fixtures.map((round, rIdx) => ({
