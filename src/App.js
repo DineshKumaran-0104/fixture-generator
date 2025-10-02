@@ -4,6 +4,7 @@ import "./App.css";
 import OptionWizard from "./OptionWizard";
 import LeagueTable from "./LeagueTable";
 import KnockoutBracket from "./KnockoutBracket";
+import KnockoutBracketNew from "./KnockoutBracketNew";
 
 function App() {
   const [showPopup, setShowPopup] = useState(false);
@@ -73,6 +74,9 @@ function App() {
       {fixtureOption && fixtureOption.fixtureType === "knockout" && flow!=="brakcet" && finalData && (
         <div>
           <div>New flow loading</div>
+          <div>
+            <KnockoutBracketNew participantstDetails={finalData} />
+          </div>
         </div>
       )}
     </div>
