@@ -1,0 +1,10 @@
+Current techincal Observation
+1) They don't have dom, instead they are drawing it directly on canvas
+2) For more details about those case
+https://chatgpt.com/c/68de4c8e-1408-8321-8720-0b8d8fe3d2ea
+
+
+
+
+
+

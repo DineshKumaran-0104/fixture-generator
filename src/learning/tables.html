@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Read Local CSV File</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" 
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" 
+        crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js"></script>
+</head>
+<body>
+
+    <h1>Select a CSV File</h1>
+
+    <input type="file" id="csvFileInput" accept=".csv" />
+
+    <p id="message"></p>
+    <pre id="output"></pre>
+    <div>
+        <canvas id="canvasTable" width="1800px" height="700px" style="position: relative; top: 0px; left: 0px; z-index: 2; width: 1428px; height: 761px; padding-top: 0px; padding-left: 0px;">Your Browser doesn’t support Canvas.</canvas>
+    </div>
+    
+    <script src="./tables.js"></script>
+    <script>
+        let canvas = document.getElementById("canvasTable");
+        let ctx = canvas.getContext("2d");
+
+
+        // Get the file input element
+        const fileInput = document.getElementById('csvFileInput');
+        const messageElement = document.getElementById('message');
+        const outputElement = document.getElementById('output');
+
+        // Listen for when a file is selected
+        fileInput.addEventListener('change', function(event) {
+            
+            // Check if any file was selected
+            const file = event.target.files[0];
+
+            if (!file) {
+                messageElement.textContent = "No file selected.";
+                return;
+            }
+
+            messageElement.textContent = `Reading file: ${file.name} (${(file.size / 1024).toFixed(2)} KB)...`;
+            outputElement.textContent = "";
+
+            // 2. Create a FileReader
+            const reader = new FileReader();
+
+            // 3. Define the function to execute when the file is loaded
+            reader.onload = function(e) {
+                
+                // e.target.result contains the entire text content of the file
+                const allText = e.target.result;
+
+                try {
+                    // Check if jQuery CSV is loaded before using it
+                    if (typeof $.csv !== 'undefined') {
+                        
+                        // Parse the CSV text into an array of objects
+                        let data = $.csv.toObjects(allText);
+                        
+                        // Log the parsed data to the console
+                        console.log(data);
+
+                        //Logic to find border width and border height
+                        let bw = (Object.keys(data[0]).length) * 200; //Calculating Border Width
+                        let bh = (data.length + 1) * 40; // Calculating Border Height
+                        var p = 10; //margin
+
+                        console.log("bw: "+bw+", bh: "+bh);
+                        
+                        // Display a snippet of the data in the browser
+                        messageElement.textContent = `Successfully read and parsed ${data.length} records.`;
+                        outputElement.textContent = JSON.stringify(data.slice(0, 5), null, 2) + "\n\n... and " + (data.length - 5) + " more.";
+
+                    } else {
+                        messageElement.textContent = "Error: jQuery CSV library not loaded. Cannot parse data.";
+                        outputElement.textContent = allText.substring(0, 500) + '...';
+                        console.error("jQuery CSV library not found.");
+                    }
+
+                } catch (error) {
+                    messageElement.textContent = "Error parsing CSV data.";
+                    outputElement.textContent = error.toString();
+                    console.error("CSV Parsing Error:", error);
+                }
+            };
+
+            // 4. Start reading the file as plain text
+            reader.readAsText(file);
+        });
+
+        const tables = [
+        {
+            id: "users",
+            x: 100, y: 100, width: 200, 
+            columns: ["id", "name", "email"]
+        },
+        {
+            id: "orders",
+            x: 400, y: 200, width: 200,
+            columns: ["id", "user_id", "amount"]
+        }
+        ];
+
+        const relationships = [
+        { from: { table: "orders", column: "user_id" }, to: { table: "users", column: "id" } }
+        ];
+
+        draw(ctx, canvas, tables);
+
+
+    </script>
+</body>
+</html>
