@@ -60,6 +60,7 @@
       });
       group.add(rect);
 
+      // Heading
       const tableName = new Konva.Text({
         text: tbl.id,
         x: 10,
@@ -70,6 +71,7 @@
       });
       group.add(tableName);
 
+      //column values
       tbl.columns.forEach((col, i) => {
         const text = new Konva.Text({
           text: col,
@@ -106,39 +108,72 @@
       layer.add(line);
       layer.add(dot);
 
-      // Hover effect
-      line.on('mouseover', () => {
+    // Hover effect
+    line.on('mouseover', () => {
         document.body.style.cursor = 'pointer';
         line.stroke('#00aaff');
         line.strokeWidth(3);
-        dot.visible(true);
 
+        // Number of dots (based on stroke width or fixed value)
+        const dotCount = Math.max(3, Math.floor(line.strokeWidth() * 1.5));
+
+        // Create and store dots
+        line.dots = [];
+        const points = line.points();
+        const [x1, y1, x2, y2] = points;
+
+        for (let i = 0; i < dotCount; i++) {
+            const dot = new Konva.Circle({
+            radius: 3,
+            fill: '#00aaff',
+            shadowColor: '#00aaff',
+            shadowBlur: 8,
+            visible: true,
+            listening: false, // so dot doesn’t block hover events
+            });
+            layer.add(dot);
+            line.dots.push(dot);
+        }
+
+        // Animation: multiple dots moving in same phase
         const anim = new Konva.Animation((frame) => {
-          const points = line.points();
-          if (points.length < 4) return;
+            const totalDuration = 2000; // ms for full cycle
+            const time = frame.time % totalDuration;
 
-          const [x1, y1, x2, y2] = points;
+            for (let i = 0; i < dotCount; i++) {
+            // Stagger start times so dots are spaced evenly
+            const phase = (i / dotCount) * totalDuration;
+            const t = ((time + phase) % totalDuration) / totalDuration;
 
-          const t = (frame.time % 2000) / 2000; // 2-second loop
-          const x = x1 + (x2 - x1) * t;
-          const y = y1 + (y2 - y1) * t;
-
-          dot.position({ x, y });
+            const x = x1 + (x2 - x1) * t;
+            const y = y1 + (y2 - y1) * t;
+            line.dots[i].position({ x, y });
+            }
         }, layer);
 
         line.anim = anim;
         anim.start();
         layer.batchDraw();
-      });
+    });
 
-      line.on('mouseout', () => {
+    // Mouse leave cleanup
+    line.on('mouseout', () => {
         document.body.style.cursor = 'default';
         line.stroke('#888');
         line.strokeWidth(2);
-        if (line.anim) line.anim.stop();
-        dot.visible(false);
+
+        if (line.anim) {
+            line.anim.stop();
+            line.anim = null;
+        }
+
+        if (line.dots) {
+            line.dots.forEach((dot) => dot.destroy());
+            line.dots = [];
+        }
+
         layer.batchDraw();
-      });
+    });
 
       relationshipLines.push({ line, dot, fromId, toId });
     }
