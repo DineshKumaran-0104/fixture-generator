@@ -22,7 +22,9 @@ var circle = new Konva.Circle({
     strokeWidth: 4,
     shadowOffsetX: 20,
     shadowOffsetY: 20,
-    shadowBlur: 30
+    shadowBlur: 30,
+    opacity: 0.8,
+    draggable: true
 })
 
 
@@ -31,3 +33,15 @@ layer.add(circle);
 
 // Layer to stage.
 stage.add(layer);
+
+
+//Events
+circle.on('mousedown', function(){
+    this.fill('#FAF55A'),
+    layer.draw();
+})
+
+circle.on('mouseup', function(){
+    this.fill('blue'),
+    layer.draw();
+})

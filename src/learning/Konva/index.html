@@ -1,9 +1,233 @@
 <!DOCTYPE html>
-    <head>
-        <script src="https://unpkg.com/konva@10/konva.min.js"></script>
-    </head>
-    <body>
-        <div id="bucket" style="margin: 20px;"></div>
-        <script src="./index.js"></script>
-    </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Konva Table Relationship Diagram</title>
+  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; background: #f8f8f8; }
+    #container { width: 100vw; height: 100vh; cursor: default; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+
+  <script>
+    // ----- DATA -----
+    const tables = [
+      { id: 'users', x: 100, y: 100, columns: ['id', 'name', 'email'] },
+      { id: 'orders', x: 400, y: 200, columns: ['id', 'user_id', 'total'] },
+      { id: 'products', x: 800, y: 100, columns: ['id', 'name', 'price'] },
+    ];
+
+    const relationships = [
+      { from: 'users', to: 'orders' },
+      { from: 'orders', to: 'products' },
+    ];
+
+    // ----- KONVA SETUP -----
+    const stage = new Konva.Stage({
+      container: 'container',
+      width: window.innerWidth,
+      height: window.innerHeight,
+      draggable: false,
+    });
+
+    const layer = new Konva.Layer();
+    stage.add(layer);
+
+    const tableMap = {};
+    const relationshipLines = [];
+
+    // ----- DRAW TABLES -----
+    tables.forEach((tbl) => {
+      const group = new Konva.Group({
+        x: tbl.x,
+        y: tbl.y,
+        draggable: true,
+        id: tbl.id,
+      });
+
+      const rect = new Konva.Rect({
+        width: 150,
+        height: 30 + tbl.columns.length * 20,
+        fill: '#fff',
+        stroke: '#333',
+        cornerRadius: 6,
+        shadowColor: 'rgba(0,0,0,0.2)',
+        shadowBlur: 5,
+        shadowOffset: { x: 2, y: 2 },
+      });
+      group.add(rect);
+
+      const tableName = new Konva.Text({
+        text: tbl.id,
+        x: 10,
+        y: 5,
+        fontSize: 14,
+        fontStyle: 'bold',
+        fill: '#222',
+      });
+      group.add(tableName);
+
+      tbl.columns.forEach((col, i) => {
+        const text = new Konva.Text({
+          text: col,
+          x: 10,
+          y: 30 + i * 20,
+          fontSize: 13,
+          fill: '#555',
+        });
+        group.add(text);
+      });
+
+      layer.add(group);
+      tableMap[tbl.id] = group;
+
+      group.on('dragmove', updateRelationships);
+    });
+
+    // ----- CREATE RELATIONSHIPS -----
+    function createRelationship(fromId, toId) {
+      const line = new Konva.Line({
+        stroke: '#888',
+        strokeWidth: 2,
+        lineCap: 'round',
+        lineJoin: 'round',
+      });
+
+      // Create a moving dot (invisible initially)
+      const dot = new Konva.Circle({
+        radius: 4,
+        fill: '#00aaff',
+        visible: false,
+      });
+
+      layer.add(line);
+      layer.add(dot);
+
+      // Hover effect
+      line.on('mouseover', () => {
+        document.body.style.cursor = 'pointer';
+        line.stroke('#00aaff');
+        line.strokeWidth(3);
+        dot.visible(true);
+
+        const anim = new Konva.Animation((frame) => {
+          const points = line.points();
+          if (points.length < 4) return;
+
+          const [x1, y1, x2, y2] = points;
+
+          const t = (frame.time % 2000) / 2000; // 2-second loop
+          const x = x1 + (x2 - x1) * t;
+          const y = y1 + (y2 - y1) * t;
+
+          dot.position({ x, y });
+        }, layer);
+
+        line.anim = anim;
+        anim.start();
+        layer.batchDraw();
+      });
+
+      line.on('mouseout', () => {
+        document.body.style.cursor = 'default';
+        line.stroke('#888');
+        line.strokeWidth(2);
+        if (line.anim) line.anim.stop();
+        dot.visible(false);
+        layer.batchDraw();
+      });
+
+      relationshipLines.push({ line, dot, fromId, toId });
+    }
+
+    relationships.forEach(r => createRelationship(r.from, r.to));
+
+    // ----- UPDATE RELATIONSHIPS -----
+    function updateRelationships() {
+      relationshipLines.forEach(({ line, dot, fromId, toId }) => {
+        const from = tableMap[fromId];
+        const to = tableMap[toId];
+
+        const fromPos = from.getAbsolutePosition();
+        const toPos = to.getAbsolutePosition();
+
+        const fromBox = from.findOne('Rect');
+        const toBox = to.findOne('Rect');
+
+        const fromCenter = {
+          x: fromPos.x + fromBox.width() / 2,
+          y: fromPos.y + fromBox.height() / 2,
+        };
+
+        const toCenter = {
+          x: toPos.x + toBox.width() / 2,
+          y: toPos.y + toBox.height() / 2,
+        };
+
+        line.points([fromCenter.x, fromCenter.y, toCenter.x, toCenter.y]);
+      });
+
+      layer.batchDraw();
+    }
+
+    updateRelationships();
+
+    // ----- ZOOM + PAN -----
+    const scaleBy = 1.1;
+    stage.on('wheel', (e) => {
+      e.evt.preventDefault();
+
+      const oldScale = stage.scaleX();
+      const pointer = stage.getPointerPosition();
+      const mousePointTo = {
+        x: (pointer.x - stage.x()) / oldScale,
+        y: (pointer.y - stage.y()) / oldScale,
+      };
+
+      const direction = e.evt.deltaY > 0 ? -1 : 1;
+      const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+      stage.scale({ x: newScale, y: newScale });
+      const newPos = {
+        x: pointer.x - mousePointTo.x * newScale,
+        y: pointer.y - mousePointTo.y * newScale,
+      };
+      stage.position(newPos);
+      stage.batchDraw();
+    });
+
+    // Right-click or middle-click drag to pan
+    let isPanning = false;
+    let lastPos = null;
+
+    stage.on('mousedown touchstart', (e) => {
+      if (e.evt.button === 1 || e.evt.button === 2) { // middle or right button
+        isPanning = true;
+        lastPos = stage.getPointerPosition();
+        document.body.style.cursor = 'grab';
+      }
+    });
+
+    stage.on('mouseup touchend', () => {
+      isPanning = false;
+      document.body.style.cursor = 'default';
+    });
+
+    stage.on('mousemove touchmove', (e) => {
+      if (!isPanning || !lastPos) return;
+      const pos = stage.getPointerPosition();
+      const dx = pos.x - lastPos.x;
+      const dy = pos.y - lastPos.y;
+      stage.x(stage.x() + dx);
+      stage.y(stage.y() + dy);
+      stage.batchDraw();
+      lastPos = pos;
+    });
+
+    window.addEventListener('contextmenu', (e) => e.preventDefault()); // disable right-click menu
+  </script>
+</body>
 </html>
