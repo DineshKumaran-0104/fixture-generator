@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Konva Table Relationship Diagram</title>
+        <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+        <style>
+          body { margin: 0; overflow: hidden; background: #f8f8f8; }
+          #container { width: 100vw; height: 100vh; cursor: default; }
+        </style>
+    </head>
+    <body>
+        <div id="container"></div>
+        <script>
+            const data = {
+            Round1: {
+                M1: ['Team 1', 'Team 2'],
+                M2: ['Team 3', 'Team 4'],
+                M3: ['Team 5', 'Team 6'],
+                M4: ['Team 7', 'Team 8'],
+            },
+            Round2: {
+                S1: ['Team 1', 'Team 3'],
+                S2: ['Team 6', 'Team 7'],
+            },
+            Final: {
+                F: ['Team 1', 'Team 6'],
+            },
+            };
+
+
+            const stage = new Konva.Stage({
+                container: 'container',
+                width: window.innerWidth,
+                height: window.innerHeight,
+            });
+
+            const layer = new Konva.Layer();
+            stage.add(layer);
+
+            // --- CONFIG ---
+            const matchBoxWidth = 120;
+            const matchBoxHeight = 30;
+            const verticalGap = 40;
+            const roundGap = 250;
+
+            // --- DRAW FIXTURE ---
+            function drawKnockoutBracket(data) {
+                const rounds = Object.keys(data);
+                const roundPositions = {};
+
+                const matchBoxWidth = 140;
+                const matchBoxHeight = 30;
+                const headerHeight = 25;
+                const verticalGap = 50;
+                const roundGap = 250;
+                const yOffsetBase = 100;
+
+                // total columns in the entire match like Round1 left, round1 right, final, semi left, semi right...etc
+                const totalColumns = getTotalColumns(data);
+
+                //roundName:- Round1, Round2
+                rounds.forEach((roundName, roundIndex) => {
+                    const matches = Object.entries(data[roundName]);
+                    //const roundX = 100 + roundIndex * roundGap;
+
+                    const leftMatches = [];
+                    const rightMatches = [];
+                    if (roundName === "Round1" || roundName === "Round2") {
+                        const half = matches.length / 2;
+                        leftMatches.push(...matches.slice(0, half));
+                        rightMatches.push(...matches.slice(half));
+                    }
+
+                    const drawMatches = (matchList, side = "center") => {
+                        // matchId - M1, M2
+                        matchList.forEach(([matchId, teams], i) => {
+                            const yBase = yOffsetBase + i * (matchBoxHeight * 2 + verticalGap);
+
+                            //find position
+                            const xBase =
+                            side === "left"
+                                ? roundIndex * roundGap
+                                : (totalColumns-1 - roundIndex)*roundGap
+
+                            // Create group for the whole match
+                            const matchGroup = new Konva.Group({
+                                x: xBase,
+                                y: yBase,
+                                draggable: false,
+                            });
+
+                            console.log("matchId:"+matchId+", xBase:"+xBase)
+
+                            // Background box (container)
+                            const matchBg = new Konva.Rect({
+                                width: matchBoxWidth,
+                                height: headerHeight + teams.length * matchBoxHeight + 10,
+                                fill: "#f9f9f9",
+                                stroke: "#555",
+                                cornerRadius: 6,
+                                shadowBlur: 5,
+                            });
+
+                            // Header (match name)
+                            const headerText = new Konva.Text({
+                                x: 0,
+                                y: 2,
+                                width: matchBoxWidth,
+                                text: matchId,
+                                align: "center",
+                                fontStyle: "bold",
+                                fontSize: 14,
+                                fill: "#222",
+                            });
+
+                            matchGroup.add(matchBg);
+                            matchGroup.add(headerText);
+
+                            const teamPositions = [];
+                            let yCursor = headerHeight;
+
+                            teams.forEach((team, idx) => {
+                                const rect = new Konva.Rect({
+                                    x: 0,
+                                    y: yCursor,
+                                    width: matchBoxWidth,
+                                    height: matchBoxHeight,
+                                    fill: "#fff",
+                                    stroke: "#999",
+                                });
+
+                                const text = new Konva.Text({
+                                    x: 0,
+                                    y: yCursor + 6,
+                                    width: matchBoxWidth,
+                                    align: "center",
+                                    text: team,
+                                    fontSize: 13,
+                                });
+
+                                matchGroup.add(rect);
+                                matchGroup.add(text);
+
+                                teamPositions.push({
+                                    x: xBase + matchBoxWidth,
+                                    y: yBase + yCursor + matchBoxHeight / 2,
+                                });
+
+                                yCursor += matchBoxHeight;
+                            });
+
+                            layer.add(matchGroup);
+
+                            // Store center/midpoint info for connecting lines
+                            if (!roundPositions[roundName]) roundPositions[roundName] = {};
+                            const midY = (teamPositions[0].y + teamPositions[1].y) / 2;
+                            roundPositions[roundName][matchId] = {
+                                rightX: xBase + matchBoxWidth,
+                                midY,
+                            };
+                        });
+                    };
+
+                    if (roundName === "Round1" || roundName === "Round2") {
+                        drawMatches(leftMatches, "left");
+                        drawMatches(rightMatches, "right");
+                    } else {
+                        drawMatches(matches, "left");
+                    }
+                });
+
+                // Draw connections between rounds
+                const roundsKeys = Object.keys(data);
+                for (let i = 0; i < roundsKeys.length - 1; i++) {
+                    const currentRound = roundsKeys[i];
+                    const nextRound = roundsKeys[i + 1];
+
+                    const currentMatches = Object.keys(data[currentRound]);
+                    const nextMatches = Object.keys(data[nextRound]);
+
+                    nextMatches.forEach((nextId, index) => {
+                    const nextPos = roundPositions[nextRound][nextId];
+                    const from1 = roundPositions[currentRound][currentMatches[index * 2]];
+                    const from2 = roundPositions[currentRound][currentMatches[index * 2 + 1]];
+
+                    if (from1 && from2 && nextPos) {
+                        const line = new Konva.Line({
+                        points: [
+                            from1.rightX + 20,
+                            from1.midY,
+                            nextPos.rightX - 150,
+                            nextPos.midY,
+                        ],
+                        stroke: "#00aaff",
+                        strokeWidth: 2,
+                        lineCap: "round",
+                        lineJoin: "round",
+                        });
+                        layer.add(line);
+                    }
+                    });
+                }
+
+                layer.batchDraw();
+            }
+
+            function getTotalColumns(data){
+                if(data){
+                    let rounds = Object.keys(data);
+                    if(rounds.indexOf('Final') !== -1){
+                        return (rounds.length - 1) * 2 + 1;
+                    }
+                    return rounds.length * 2;
+                }
+                return 0;
+            }
+
+            drawKnockoutBracket(data);
+
+
+        </script>
+    </body>
+</html>
