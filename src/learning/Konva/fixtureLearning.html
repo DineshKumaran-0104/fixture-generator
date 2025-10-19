@@ -89,19 +89,14 @@
                                 let prevRoundNames = Object.keys(prevRound);
                                 if(side === 'left'){
                                     let startIndex = i*2;
-                                    let prevMatch1 = prevRound[prevRoundNames[startIndex]];
-                                    let prevMatch2 = prevRound[prevRoundNames[startIndex+1]];
-                                    let prevMatch1yBase = prevMatch1.yBase;
-                                    let prevMatch2yBase = prevMatch2.yBase;
-                                    yBase = (prevMatch1yBase + prevMatch2yBase)/2;
                                 } else {
                                     let startIndex = prevRoundNames.length/2+i*2;
-                                    let prevMatch1 = prevRound[prevRoundNames[startIndex]];
-                                    let prevMatch2 = prevRound[prevRoundNames[startIndex+1]];
-                                    let prevMatch1yBase = prevMatch1.yBase;
-                                    let prevMatch2yBase = prevMatch2.yBase;
-                                    yBase = (prevMatch1yBase + prevMatch2yBase)/2;
                                 }
+                                let prevMatch1 = prevRound[prevRoundNames[startIndex]];
+                                let prevMatch2 = prevRound[prevRoundNames[startIndex+1]];
+                                let prevMatch1yBase = prevMatch1.yBase;
+                                let prevMatch2yBase = prevMatch2.yBase;
+                                yBase = (prevMatch1yBase + prevMatch2yBase)/2;
                             }
                             console.log("matchId:"+matchId+", yBase:" +yBase)
 
