@@ -80,8 +80,29 @@
 
                     const drawMatches = (matchList, side = "center") => {
                         // matchId - M1, M2
-                        matchList.forEach(([matchId, teams], i) => {
-                            const yBase = yOffsetBase + i * (matchBoxHeight * 2 + verticalGap)+ roundIndex*verticalGap;
+                        matchList.forEach(([matchId, matchDetails], i) => {
+                            let yBase=0;
+                            if(roundIndex === 0){
+                                yBase = yOffsetBase + i * (matchBoxHeight * 2 + verticalGap)+ roundIndex*verticalGap;
+                            } else {
+                                let prevRound = data[rounds[roundIndex-1]];
+                                let prevRoundNames = Object.keys(prevRound);
+                                if(side === 'left'){
+                                    let startIndex = i*2;
+                                    let prevMatch1 = prevRound[prevRoundNames[startIndex]];
+                                    let prevMatch2 = prevRound[prevRoundNames[startIndex+1]];
+                                    let prevMatch1yBase = prevMatch1.yBase;
+                                    let prevMatch2yBase = prevMatch2.yBase;
+                                    yBase = (prevMatch1yBase + prevMatch2yBase)/2;
+                                } else {
+                                    let startIndex = prevRoundNames.length/2+i*2;
+                                    let prevMatch1 = prevRound[prevRoundNames[startIndex]];
+                                    let prevMatch2 = prevRound[prevRoundNames[startIndex+1]];
+                                    let prevMatch1yBase = prevMatch1.yBase;
+                                    let prevMatch2yBase = prevMatch2.yBase;
+                                    yBase = (prevMatch1yBase + prevMatch2yBase)/2;
+                                }
+                            }
                             console.log("matchId:"+matchId+", yBase:" +yBase)
 
                             //find position
@@ -133,40 +154,9 @@
                             contextObject.yBase = yBase;
                             contextObject.yCursor = yCursor;
                             //team1
-                            drawTeamBox(matchGroup, teams.team1, teamPositions, contextObject);
-
+                            drawTeamBox(matchGroup, matchDetails.team1, teamPositions, contextObject);
                             //team2
-                            drawTeamBox(matchGroup, teams.team2, teamPositions, contextObject)
-
-                            // teams.forEach((team, idx) => {
-                            //     const rect = new Konva.Rect({
-                            //         x: 0,
-                            //         y: yCursor,
-                            //         width: matchBoxWidth,
-                            //         height: matchBoxHeight,
-                            //         fill: "#fff",
-                            //         stroke: "#999",
-                            //     });
-
-                            //     const text = new Konva.Text({
-                            //         x: 0,
-                            //         y: yCursor + 6,
-                            //         width: matchBoxWidth,
-                            //         align: "center",
-                            //         text: team,
-                            //         fontSize: 13,
-                            //     });
-
-                            //     matchGroup.add(rect);
-                            //     matchGroup.add(text);
-
-                            //     teamPositions.push({
-                            //         x: xBase + matchBoxWidth,
-                            //         y: yBase + yCursor + matchBoxHeight / 2,
-                            //     });
-
-                            //     yCursor += matchBoxHeight;
-                            // });
+                            drawTeamBox(matchGroup, matchDetails.team2, teamPositions, contextObject)
 
                             layer.add(matchGroup);
 
@@ -177,6 +167,8 @@
                                 rightX: xBase + matchBoxWidth,
                                 midY,
                             };
+                            matchDetails.XBase = xBase;
+                            matchDetails.yBase = yBase;
                         });
                     };
 
