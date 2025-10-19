@@ -18,13 +18,23 @@
                 M2: ['Team 3', 'Team 4'],
                 M3: ['Team 5', 'Team 6'],
                 M4: ['Team 7', 'Team 8'],
+                M5: ['Team 9', 'Team 10'],
+                M6: ['Team 11', 'Team 12'],
+                M7: ['Team 13', 'Team 14'],
+                M8: ['Team 15', 'Team 16']
             },
             Round2: {
-                S1: ['Team 1', 'Team 3'],
-                S2: ['Team 6', 'Team 7'],
+                M1: ['Team 1', 'Team 3'],
+                M2: ['Team 6', 'Team 7'],
+                M3: ['Team 9', 'Team 12'],
+                M4: ['Team 14', 'Team 15']
+            },
+            Round3:{
+                S1: ['Team 1', 'Team 6'],
+                S2: ['Team 9', 'Team 15']
             },
             Final: {
-                F: ['Team 1', 'Team 6'],
+                F: ['Team 1', 'Team 9'],
             },
             };
 
@@ -33,6 +43,7 @@
                 container: 'container',
                 width: window.innerWidth,
                 height: window.innerHeight,
+                draggable: false
             });
 
             const layer = new Konva.Layer();
@@ -54,6 +65,7 @@
                 const headerHeight = 25;
                 const verticalGap = 50;
                 const roundGap = 250;
+                const roundHeight = 250
                 const yOffsetBase = 100;
 
                 // total columns in the entire match like Round1 left, round1 right, final, semi left, semi right...etc
@@ -66,7 +78,7 @@
 
                     const leftMatches = [];
                     const rightMatches = [];
-                    if (roundName === "Round1" || roundName === "Round2") {
+                    if (roundName.includes("Round")) {
                         const half = matches.length / 2;
                         leftMatches.push(...matches.slice(0, half));
                         rightMatches.push(...matches.slice(half));
@@ -90,7 +102,6 @@
                                 draggable: false,
                             });
 
-                            console.log("matchId:"+matchId+", xBase:"+xBase)
 
                             // Background box (container)
                             const matchBg = new Konva.Rect({
@@ -162,7 +173,7 @@
                         });
                     };
 
-                    if (roundName === "Round1" || roundName === "Round2") {
+                    if (roundName.includes("Round")) {
                         drawMatches(leftMatches, "left");
                         drawMatches(rightMatches, "right");
                     } else {
@@ -218,6 +229,62 @@
 
             drawKnockoutBracket(data);
 
+            // Enable zoom in/out
+            stage.on('wheel', (e) => {
+            e.evt.preventDefault();
+                const oldScale = stage.scaleX();
+                const pointer = stage.getPointerPosition();
+                const scaleBy = 1.05;
+                const direction = e.evt.deltaY > 0 ? -1 : 1;
+                const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+                const mousePointTo = {
+                    x: (pointer.x - stage.x()) / oldScale,
+                    y: (pointer.y - stage.y()) / oldScale,
+                };
+
+                stage.scale({ x: newScale, y: newScale });
+
+                const newPos = {
+                    x: pointer.x - mousePointTo.x * newScale,
+                    y: pointer.y - mousePointTo.y * newScale,
+                };
+                stage.position(newPos);
+                stage.batchDraw();
+            });
+
+            // Enable right-click drag (panning)
+            let isPanning = false;
+            let lastPos = null;
+
+            stage.on('mousedown', (e) => {
+            if (e.evt.button === 2) {  // right click
+                isPanning = true;
+                lastPos = stage.getPointerPosition();
+                document.body.style.cursor = 'grabbing';
+            }
+            });
+
+            stage.on('mouseup', () => {
+                isPanning = false;
+                document.body.style.cursor = 'default';
+            });
+
+            stage.on('mousemove', (e) => {
+                if (!isPanning) return;
+                const pos = stage.getPointerPosition();
+                const dx = pos.x - lastPos.x;
+                const dy = pos.y - lastPos.y;
+
+                stage.x(stage.x() + dx);
+                stage.y(stage.y() + dy);
+                stage.batchDraw();
+
+                lastPos = pos;
+            });
+
+            // Disable default context menu
+            stage.container().addEventListener('contextmenu', (e) => e.preventDefault());
 
         </script>
     </body>
