@@ -14,27 +14,27 @@
         <script>
             const data = {
             Round1: {
-                M1: ['Team 1', 'Team 2'],
-                M2: ['Team 3', 'Team 4'],
-                M3: ['Team 5', 'Team 6'],
-                M4: ['Team 7', 'Team 8'],
-                M5: ['Team 9', 'Team 10'],
-                M6: ['Team 11', 'Team 12'],
-                M7: ['Team 13', 'Team 14'],
-                M8: ['Team 15', 'Team 16']
+                M1: { team1: {value: 'Team 1'}, team2: {value: 'Team 2'}},
+                M2: { team1: {value: 'Team 3'}, team2: {value: 'Team 4'}},
+                M3: { team1: {value: 'Team 5'}, team2: {value: 'Team 6'}},
+                M4: { team1: {value: 'Team 7'}, team2: {value: 'Team 8'}},
+                M5: { team1: {value: 'Team 9'}, team2: {value: 'Team 10'}},
+                M6: { team1: {value: 'Team 11'}, team2: {value: 'Team 12'}},
+                M7: { team1: {value: 'Team 13'}, team2: {value: 'Team 14'}},
+                M8: { team1: {value: 'Team 15'}, team2: {value: 'Team 16'}}
             },
             Round2: {
-                M1: ['Team 1', 'Team 3'],
-                M2: ['Team 6', 'Team 7'],
-                M3: ['Team 9', 'Team 12'],
-                M4: ['Team 14', 'Team 15']
+                M1: { team1: {value: 'Team 1'}, team2: {value: 'Team 3'}},
+                M2: { team1: {value: 'Team 6'}, team2: {value: 'Team 7'}},
+                M3: { team1: {value: 'Team 9'}, team2: {value: 'Team 12'}},
+                M4: { team1: {value: 'Team 14'}, team2: {value: 'Team 15'}}
             },
             Round3:{
-                S1: ['Team 1', 'Team 6'],
-                S2: ['Team 9', 'Team 15']
+                S1: { team1: {value: 'Team 1'}, team2: {value: 'Team 6'}},
+                S2: { team1: {value: 'Team 9'}, team2: {value: 'Team 15'}}
             },
             Final: {
-                F: ['Team 1', 'Team 9'],
+                F: { team1: {value:'Team 1'}, team2: {value: 'Team 9'}},
             },
             };
 
@@ -49,12 +49,6 @@
             const layer = new Konva.Layer();
             stage.add(layer);
 
-            // --- CONFIG ---
-            const matchBoxWidth = 120;
-            const matchBoxHeight = 30;
-            const verticalGap = 40;
-            const roundGap = 250;
-
             // --- DRAW FIXTURE ---
             function drawKnockoutBracket(data) {
                 const rounds = Object.keys(data);
@@ -63,7 +57,7 @@
                 const matchBoxWidth = 140;
                 const matchBoxHeight = 30;
                 const headerHeight = 25;
-                const verticalGap = 50;
+                const verticalGap = 100;
                 const roundGap = 250;
                 const roundHeight = 250
                 const yOffsetBase = 100;
@@ -87,7 +81,8 @@
                     const drawMatches = (matchList, side = "center") => {
                         // matchId - M1, M2
                         matchList.forEach(([matchId, teams], i) => {
-                            const yBase = yOffsetBase + i * (matchBoxHeight * 2 + verticalGap);
+                            const yBase = yOffsetBase + i * (matchBoxHeight * 2 + verticalGap)+ roundIndex*verticalGap;
+                            console.log("matchId:"+matchId+", yBase:" +yBase)
 
                             //find position
                             const xBase =
@@ -106,7 +101,7 @@
                             // Background box (container)
                             const matchBg = new Konva.Rect({
                                 width: matchBoxWidth,
-                                height: headerHeight + teams.length * matchBoxHeight + 10,
+                                height: headerHeight + 2 * matchBoxHeight + 10,
                                 fill: "#f9f9f9",
                                 stroke: "#555",
                                 cornerRadius: 6,
@@ -131,35 +126,47 @@
                             const teamPositions = [];
                             let yCursor = headerHeight;
 
-                            teams.forEach((team, idx) => {
-                                const rect = new Konva.Rect({
-                                    x: 0,
-                                    y: yCursor,
-                                    width: matchBoxWidth,
-                                    height: matchBoxHeight,
-                                    fill: "#fff",
-                                    stroke: "#999",
-                                });
+                            const contextObject = {};
+                            contextObject.matchBoxWidth = matchBoxWidth;
+                            contextObject.matchBoxHeight = matchBoxHeight;
+                            contextObject.xBase = xBase;
+                            contextObject.yBase = yBase;
+                            contextObject.yCursor = yCursor;
+                            //team1
+                            drawTeamBox(matchGroup, teams.team1, teamPositions, contextObject);
 
-                                const text = new Konva.Text({
-                                    x: 0,
-                                    y: yCursor + 6,
-                                    width: matchBoxWidth,
-                                    align: "center",
-                                    text: team,
-                                    fontSize: 13,
-                                });
+                            //team2
+                            drawTeamBox(matchGroup, teams.team2, teamPositions, contextObject)
 
-                                matchGroup.add(rect);
-                                matchGroup.add(text);
+                            // teams.forEach((team, idx) => {
+                            //     const rect = new Konva.Rect({
+                            //         x: 0,
+                            //         y: yCursor,
+                            //         width: matchBoxWidth,
+                            //         height: matchBoxHeight,
+                            //         fill: "#fff",
+                            //         stroke: "#999",
+                            //     });
 
-                                teamPositions.push({
-                                    x: xBase + matchBoxWidth,
-                                    y: yBase + yCursor + matchBoxHeight / 2,
-                                });
+                            //     const text = new Konva.Text({
+                            //         x: 0,
+                            //         y: yCursor + 6,
+                            //         width: matchBoxWidth,
+                            //         align: "center",
+                            //         text: team,
+                            //         fontSize: 13,
+                            //     });
 
-                                yCursor += matchBoxHeight;
-                            });
+                            //     matchGroup.add(rect);
+                            //     matchGroup.add(text);
+
+                            //     teamPositions.push({
+                            //         x: xBase + matchBoxWidth,
+                            //         y: yBase + yCursor + matchBoxHeight / 2,
+                            //     });
+
+                            //     yCursor += matchBoxHeight;
+                            // });
 
                             layer.add(matchGroup);
 
@@ -225,6 +232,36 @@
                     return rounds.length * 2;
                 }
                 return 0;
+            }
+
+            function drawTeamBox(matchGroup, team, teamPositions, contextObject){
+                const rect = new Konva.Rect({
+                    x: 0,
+                    y: contextObject.yCursor,
+                    width: contextObject.matchBoxWidth,
+                    height: contextObject.matchBoxHeight,
+                    fill: "#fff",
+                    stroke: "#999",
+                });
+
+                const text = new Konva.Text({
+                    x: 0,
+                    y: contextObject.yCursor + 6,
+                    width: contextObject.matchBoxWidth,
+                    align: "center",
+                    text: team.value,
+                    fontSize: 13,
+                });
+
+                matchGroup.add(rect);
+                matchGroup.add(text);
+
+                teamPositions.push({
+                    x: contextObject.xBase + contextObject.matchBoxWidth,
+                    y: contextObject.yBase + contextObject.yCursor + contextObject.matchBoxHeight / 2,
+                });
+
+                contextObject.yCursor += contextObject.matchBoxHeight;
             }
 
             drawKnockoutBracket(data);
