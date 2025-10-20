@@ -87,10 +87,11 @@
                             } else {
                                 let prevRound = data[rounds[roundIndex-1]];
                                 let prevRoundNames = Object.keys(prevRound);
+                                let startIndex;
                                 if(side === 'left'){
-                                    let startIndex = i*2;
+                                    startIndex = i*2;
                                 } else {
-                                    let startIndex = prevRoundNames.length/2+i*2;
+                                    startIndex = prevRoundNames.length/2+i*2;
                                 }
                                 let prevMatch1 = prevRound[prevRoundNames[startIndex]];
                                 let prevMatch2 = prevRound[prevRoundNames[startIndex+1]];
