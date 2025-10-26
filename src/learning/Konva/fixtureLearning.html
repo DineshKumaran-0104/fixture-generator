@@ -353,32 +353,42 @@
             drawKnockoutBracket(data);
 
             // Enable zoom in/out
+            let zooming = false;
+            let zoomTimeout;
             stage.on('wheel', (e) => {
-            e.evt.preventDefault();
-                const oldScale = stage.scaleX();
-                const pointer = stage.getPointerPosition();
-                const scaleBy = 1.05;
-                const direction = e.evt.deltaY > 0 ? -1 : 1;
-                const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+                e.evt.preventDefault();
+                if (zooming) return; // prevent multiple frames
+                zooming = true;
+                requestAnimationFrame(() => {
+                    const oldScale = stage.scaleX();
+                    const pointer = stage.getPointerPosition();
+                    const scaleBy = 1.05;
+                    const direction = e.evt.deltaY > 0 ? -1 : 1;
+                    const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 
-                const mousePointTo = {
+                    const mousePointTo = {
                     x: (pointer.x - stage.x()) / oldScale,
                     y: (pointer.y - stage.y()) / oldScale,
-                };
+                    };
 
-                stage.scale({ x: newScale, y: newScale });
+                    stage.scale({ x: newScale, y: newScale });
 
-                const newPos = {
+                    const newPos = {
                     x: pointer.x - mousePointTo.x * newScale,
                     y: pointer.y - mousePointTo.y * newScale,
-                };
-                stage.position(newPos);
-                stage.batchDraw();
+                    };
+                    stage.position(newPos);
+
+                    clearTimeout(zoomTimeout);
+                    zoomTimeout = setTimeout(() => layer.batchDraw(), 100);
+                    zooming = false;
+                });
             });
 
             // Enable right-click drag (panning)
             let isPanning = false;
             let lastPos = null;
+            let panFrame = false;
 
             stage.on('mousedown', (e) => {
             if (e.evt.button === 2) {  // right click
@@ -395,16 +405,25 @@
 
             stage.on('mousemove', (e) => {
                 if (!isPanning) return;
-                const pos = stage.getPointerPosition();
-                const dx = pos.x - lastPos.x;
-                const dy = pos.y - lastPos.y;
+                if (panFrame) return;
+                panFrame = true;
+                requestAnimationFrame(() => {
+                    const pos = stage.getPointerPosition();
+                    const dx = pos.x - lastPos.x;
+                    const dy = pos.y - lastPos.y;
 
-                stage.x(stage.x() + dx);
-                stage.y(stage.y() + dy);
-                stage.batchDraw();
+                    stage.x(stage.x() + dx);
+                    stage.y(stage.y() + dy);
 
-                lastPos = pos;
+                    layer.batchDraw();
+                    lastPos = pos;
+                    panFrame = false;
+                });
             });
+
+            stage.on('wheel mousedown', () => layer.listening(false));
+            stage.on('mouseup', () => layer.listening(true));
+
 
             // Disable default context menu
             stage.container().addEventListener('contextmenu', (e) => e.preventDefault());
