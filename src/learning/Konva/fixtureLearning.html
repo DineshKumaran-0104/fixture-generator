@@ -99,7 +99,6 @@
                                 let prevMatch2yBase = prevMatch2.yBase;
                                 yBase = (prevMatch1yBase + prevMatch2yBase)/2;
                             }
-                            console.log("matchId:"+matchId+", yBase:" +yBase)
 
                             //find position
                             const xBase =
@@ -160,6 +159,8 @@
                             if (!roundPositions[roundName]) roundPositions[roundName] = {};
                             const midY = (teamPositions[0].y + teamPositions[1].y) / 2;
                             roundPositions[roundName][matchId] = {
+                                pos: side,
+                                leftX: xBase,
                                 rightX: xBase + matchBoxWidth,
                                 midY,
                             };
@@ -190,7 +191,9 @@
                         const from1 = roundPositions[currentRound][currentMatches[index * 2]];
                         const from2 = roundPositions[currentRound][currentMatches[index * 2 + 1]];
 
-                        if (from1 && from2 && nextPos) {
+                        console.log(roundPositions);
+
+                        if (from1 && from2 && nextPos && from1.pos === "left") {
                             const midX = (from1.rightX + nextPos.rightX) / 2; // midpoint horizontally
 
                             // Top connector (from first match)
@@ -225,7 +228,53 @@
                             const connector = new Konva.Line({
                             points: [
                                 midX, nextPos.midY,
-                                nextPos.rightX - 10, nextPos.midY,
+                                nextPos.leftX - 10, nextPos.midY,
+                            ],
+                            stroke: "#00aaff",
+                            strokeWidth: 2,
+                            lineCap: "round",
+                            lineJoin: "round",
+                            });
+
+                            layer.add(line1);
+                            layer.add(line2);
+                            layer.add(connector);
+                        } else {
+                            const midX = (from1.leftX + nextPos.leftX) / 2; // midpoint horizontally
+
+                            // Top connector (from first match)
+                            const line1 = new Konva.Line({
+                            points: [
+                                from1.leftX, from1.midY, // from M1
+                                from1.leftX - 30, from1.midY, // short horizontal
+                                from1.leftX - 30, nextPos.midY, // vertical
+                                midX, nextPos.midY, // horizontal to middle of next round
+                            ],
+                            stroke: "#00aaff",
+                            strokeWidth: 2,
+                            lineCap: "round",
+                            lineJoin: "round",
+                            });
+
+                            // Bottom connector (from second match)
+                            const line2 = new Konva.Line({
+                            points: [
+                                from2.leftX, from2.midY,
+                                from2.leftX - 30, from2.midY,
+                                from2.leftX - 30, nextPos.midY,
+                                midX, nextPos.midY,
+                            ],
+                            stroke: "#00aaff",
+                            strokeWidth: 2,
+                            lineCap: "round",
+                            lineJoin: "round",
+                            });
+
+                            // Middle connector to next match
+                            const connector = new Konva.Line({
+                            points: [
+                                midX, nextPos.midY,
+                                nextPos.rightX+10, nextPos.midY,
                             ],
                             stroke: "#00aaff",
                             strokeWidth: 2,
